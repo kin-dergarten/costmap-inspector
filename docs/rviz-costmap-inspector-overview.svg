@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="846" viewBox="0 54 1600 846" role="img" aria-labelledby="title description">
+  <title id="title">RViz-style costmap inspection from blocked path to source attribution</title>
+  <desc id="description">A split RViz-style view. The left side shows a robot following a planned path toward lethal cells in a merged local costmap. The right side separates laser, camera, and static-map layers to show which layer contributes the lethal cells inside the queried footprint.</desc>
+  <defs>
+    <pattern id="workspace-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#5c6469" stroke-width="1" opacity="0.26"/>
+    </pattern>
+    <pattern id="map-grid" x="10" y="14" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#353b3f"/>
+      <path d="M40 0H0V40" fill="none" stroke="#737c82" stroke-width="0.8" opacity="0.38"/>
+    </pattern>
+    <pattern id="plane-grid" x="20" y="2" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#8a949a" stroke-width="0.7" opacity="0.3"/>
+    </pattern>
+    <marker id="green-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0 0L0 6L9 3Z" fill="#42e879"/>
+    </marker>
+    <marker id="yellow-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0 0L0 6L9 3Z" fill="#ffd64d"/>
+    </marker>
+    <marker id="gray-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0 0L0 6L8 3Z" fill="#8f9aa0"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.32"/>
+    </filter>
+    <clipPath id="projected-plane-clip">
+      <rect width="600" height="233.333"/>
+    </clipPath>
+    <clipPath id="left-map-clip">
+      <rect x="70" y="145" width="600" height="640"/>
+    </clipPath>
+    <g id="projected-plane">
+      <rect width="600" height="233.333" fill="#363c40" stroke="#919ba1" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      <rect width="600" height="233.333" fill="url(#plane-grid)"/>
+    </g>
+    <path id="projected-path" d="M300 205V29" fill="none" stroke="#42e879" stroke-width="3" vector-effect="non-scaling-stroke" marker-end="url(#green-arrow)"/>
+    <rect id="projected-footprint" x="216" y="55" width="168" height="104" rx="4" fill="#ffd64d" fill-opacity="0.05" stroke="#ffd64d" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"/>
+    <g id="laser-lethal-cells" fill="#ec3cab" stroke="#ff85cb" stroke-width="1" vector-effect="non-scaling-stroke">
+      <rect x="260" y="82" width="40" height="40"/>
+      <rect x="300" y="82" width="40" height="40"/>
+      <rect x="340" y="82" width="40" height="40"/>
+      <rect x="300" y="122" width="40" height="40"/>
+    </g>
+    <g id="camera-lethal-cells" fill="#ec3cab" stroke="#ff85cb" stroke-width="1" vector-effect="non-scaling-stroke">
+      <rect x="300" y="82" width="40" height="40"/>
+      <rect x="340" y="82" width="40" height="40"/>
+    </g>
+    <g id="static-lethal-column" fill="#ec3cab" stroke="#ff85cb" stroke-width="1" vector-effect="non-scaling-stroke">
+      <rect y="-78" width="40" height="40"/>
+      <rect y="-38" width="40" height="40"/>
+      <rect y="2" width="40" height="40"/>
+      <rect y="42" width="40" height="40"/>
+      <rect y="82" width="40" height="40"/>
+      <rect y="122" width="40" height="40"/>
+      <rect y="162" width="40" height="40"/>
+      <rect y="202" width="40" height="40"/>
+    </g>
+    <g id="static-lethal-cells" clip-path="url(#projected-plane-clip)">
+      <use href="#static-lethal-column" x="60"/>
+      <use href="#static-lethal-column" x="500"/>
+    </g>
+    <g id="inflated-cost-cells" fill="#22c7d6" opacity="0.34" clip-path="url(#projected-plane-clip)">
+      <rect x="20" y="-118" width="120" height="400"/>
+      <rect x="460" y="-118" width="120" height="400"/>
+      <rect x="220" y="42" width="200" height="40"/>
+      <rect x="220" y="82" width="200" height="40"/>
+      <rect x="220" y="122" width="200" height="40"/>
+      <rect x="260" y="162" width="120" height="40"/>
+    </g>
+  </defs>
+
+  <rect width="1600" height="900" fill="#202427"/>
+  <rect width="1600" height="900" fill="url(#workspace-grid)"/>
+
+  <text x="50" y="90" fill="#f1f4f5" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold">1  MERGED COSTMAP</text>
+  <text x="760" y="90" fill="#f1f4f5" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold">2  LAYER INTROSPECTION</text>
+
+  <!-- Left: merged costmap -->
+  <rect x="40" y="108" width="660" height="742" rx="5" fill="#292e31" stroke="#596268" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="70" y="145" width="600" height="640" fill="url(#map-grid)" stroke="#778188" stroke-width="2"/>
+  <text x="88" y="172" fill="#cbd2d6" font-family="DejaVu Sans, sans-serif" font-size="14">/local_costmap/costmap</text>
+
+  <g fill="#22c7d6" opacity="0.35" clip-path="url(#left-map-clip)">
+    <rect x="90" y="134" width="120" height="640"/>
+    <rect x="530" y="134" width="120" height="640"/>
+    <rect x="290" y="294" width="200" height="40"/>
+    <rect x="290" y="334" width="200" height="40"/>
+    <rect x="290" y="374" width="200" height="40"/>
+    <rect x="330" y="414" width="120" height="40"/>
+  </g>
+  <g fill="#ec3cab" stroke="#ff85cb" stroke-width="1" opacity="0.94">
+    <rect x="130" y="174" width="40" height="560"/>
+    <rect x="570" y="174" width="40" height="560"/>
+  </g>
+  <g stroke="#ff85cb" stroke-width="1" opacity="0.86">
+    <path d="M130 214h40M130 254h40M130 294h40M130 334h40M130 374h40M130 414h40M130 454h40M130 494h40M130 534h40M130 574h40M130 614h40M130 654h40M130 694h40"/>
+    <path d="M570 214h40M570 254h40M570 294h40M570 334h40M570 374h40M570 414h40M570 454h40M570 494h40M570 534h40M570 574h40M570 614h40M570 654h40M570 694h40"/>
+  </g>
+
+  <path d="M370 735C370 655 369 585 370 510C371 425 370 325 370 205" fill="none" stroke="#102c18" stroke-width="11" opacity="0.85"/>
+  <path d="M370 735C370 655 369 585 370 510C371 425 370 325 370 205" fill="none" stroke="#42e879" stroke-width="4" marker-end="url(#green-arrow)"/>
+
+  <g fill="#ec3cab" stroke="#ff85cb" stroke-width="1.5">
+    <rect x="330" y="334" width="40" height="40"/>
+    <rect x="370" y="334" width="40" height="40"/>
+    <rect x="410" y="334" width="40" height="40"/>
+    <rect x="370" y="374" width="40" height="40"/>
+  </g>
+
+  <rect x="286" y="307" width="168" height="104" rx="4" fill="#ffd64d" fill-opacity="0.05" stroke="#ffd64d" stroke-width="3" stroke-dasharray="10 7"/>
+  <text x="292" y="296" fill="#ffe58a" font-family="DejaVu Sans, sans-serif" font-size="14">footprint at blocked pose</text>
+
+  <g transform="translate(370 645)">
+    <rect x="-84" y="-52" width="168" height="104" rx="4" fill="#ffd64d" fill-opacity="0.05" stroke="#ffd64d" stroke-width="3" stroke-dasharray="10 7"/>
+    <rect x="-57" y="-30" width="114" height="70" rx="7" fill="#2196c9" fill-opacity="0.25" stroke="#4fc3f7" stroke-width="3"/>
+    <path d="M0 0V-20M-10-13L0-23L10-13" fill="none" stroke="#8ad9fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle r="5" fill="#202427" stroke="#8ad9fa" stroke-width="2"/>
+  </g>
+  <text x="304" y="718" fill="#8ad9fa" font-family="DejaVu Sans, sans-serif" font-size="14">robot moving forward</text>
+
+  <rect x="445" y="228" width="202" height="74" rx="4" fill="#2a2f32" stroke="#ffd64d" stroke-width="2"/>
+  <text x="461" y="255" fill="#ffd64d" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="bold">PATH BLOCKED</text>
+  <text x="461" y="279" fill="#dbe0e2" font-family="DejaVu Sans, sans-serif" font-size="13">Cause hidden after merge</text>
+  <path d="M445 283C425 300 416 315 405 335" fill="none" stroke="#ffd64d" stroke-width="2" marker-end="url(#yellow-arrow)"/>
+
+  <g transform="translate(92 755)" font-family="DejaVu Sans, sans-serif" font-size="12">
+    <line x1="0" y1="0" x2="36" y2="0" stroke="#ef5350" stroke-width="3"/>
+    <line x1="0" y1="0" x2="0" y2="-36" stroke="#66bb6a" stroke-width="3"/>
+    <text x="42" y="5" fill="#ef8d8a">x</text>
+    <text x="-4" y="-43" fill="#8bd18e">y</text>
+  </g>
+
+  <!-- Connector -->
+  <path d="M705 449H748" fill="none" stroke="#8f9aa0" stroke-width="3" stroke-dasharray="6 5" marker-end="url(#gray-arrow)"/>
+  <text x="726" y="430" text-anchor="middle" fill="#c5cdd1" font-family="DejaVu Sans, sans-serif" font-size="12">inspect</text>
+
+  <!-- Right: exploded layers -->
+  <rect x="750" y="108" width="810" height="742" rx="5" fill="#292e31" stroke="#596268" stroke-width="2" filter="url(#shadow)"/>
+  <text x="780" y="140" fill="#aeb8bd" font-family="DejaVu Sans, sans-serif" font-size="13">Same frame, path, and footprint - layers evaluated independently</text>
+
+  <!-- Laser plane -->
+  <g>
+    <g transform="matrix(0.75 0 0.364286 0.45 815 175)">
+      <use href="#projected-plane"/>
+      <use href="#projected-path"/>
+      <use href="#laser-lethal-cells"/>
+      <use href="#projected-footprint"/>
+    </g>
+    <text x="833" y="200" fill="#eef2f3" font-family="DejaVu Sans, sans-serif" font-size="15" font-weight="bold">obstacle_layer</text>
+    <text x="1372" y="214" fill="#eef2f3" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="bold">LASER</text>
+    <text x="1372" y="238" fill="#ec78bd" font-family="DejaVu Sans, sans-serif" font-size="14">4 lethal cells</text>
+    <text x="1372" y="260" fill="#ffd64d" font-family="DejaVu Sans, sans-serif" font-size="13">most lethal</text>
+  </g>
+
+  <path d="M790 285V323" stroke="#8f9aa0" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#gray-arrow)"/>
+
+  <!-- Camera plane -->
+  <g>
+    <g transform="matrix(0.75 0 0.364286 0.45 815 330)">
+      <use href="#projected-plane"/>
+      <use href="#projected-path"/>
+      <use href="#camera-lethal-cells"/>
+      <use href="#projected-footprint"/>
+    </g>
+    <text x="833" y="355" fill="#eef2f3" font-family="DejaVu Sans, sans-serif" font-size="15" font-weight="bold">3d_obstacle_layer</text>
+    <text x="1372" y="369" fill="#eef2f3" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="bold">CAMERA</text>
+    <text x="1372" y="393" fill="#ec78bd" font-family="DejaVu Sans, sans-serif" font-size="14">2 lethal cells</text>
+  </g>
+
+  <path d="M790 440V478" stroke="#8f9aa0" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#gray-arrow)"/>
+
+  <!-- Static map plane -->
+  <g>
+    <g transform="matrix(0.75 0 0.364286 0.45 815 485)">
+      <use href="#projected-plane"/>
+      <use href="#static-lethal-cells"/>
+      <use href="#projected-path"/>
+      <use href="#projected-footprint"/>
+    </g>
+    <text x="882" y="511" fill="#eef2f3" font-family="DejaVu Sans, sans-serif" font-size="15" font-weight="bold">static_layer</text>
+    <text x="1372" y="524" fill="#eef2f3" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="bold">GRIDMAP</text>
+    <text x="1372" y="548" fill="#aeb8bd" font-family="DejaVu Sans, sans-serif" font-size="14">0 inside footprint</text>
+  </g>
+
+  <path d="M790 595V633" stroke="#8f9aa0" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#gray-arrow)"/>
+
+  <!-- Merged plane -->
+  <g>
+    <g transform="matrix(0.75 0 0.364286 0.45 815 640)">
+      <use href="#projected-plane"/>
+      <use href="#inflated-cost-cells"/>
+      <use href="#static-lethal-cells"/>
+      <use href="#projected-path"/>
+      <use href="#laser-lethal-cells"/>
+      <use href="#projected-footprint"/>
+    </g>
+    <text x="833" y="665" fill="#eef2f3" font-family="DejaVu Sans, sans-serif" font-size="15" font-weight="bold">combined costmap</text>
+    <text x="1372" y="683" fill="#ffd64d" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="bold">BLOCKED</text>
+    <text x="1372" y="707" fill="#cdd4d7" font-family="DejaVu Sans, sans-serif" font-size="14">source recovered</text>
+  </g>
+
+  <!-- Result bar -->
+  <rect x="785" y="774" width="740" height="55" rx="4" fill="#31373a" stroke="#5d676c"/>
+  <rect x="785" y="774" width="8" height="55" fill="#ec3cab"/>
+  <text x="812" y="798" fill="#aeb8bd" font-family="DejaVu Sans, sans-serif" font-size="12">QUERY RESULT</text>
+  <text x="812" y="818" fill="#eef2f3" font-family="DejaVu Sans, sans-serif" font-size="15" font-weight="bold">Most lethal layer: obstacle_layer</text>
+  <text x="1110" y="818" fill="#eef2f3" font-family="DejaVu Sans, sans-serif" font-size="15">Visible source: LASER</text>
+  <text x="1378" y="818" fill="#ec78bd" font-family="DejaVu Sans, sans-serif" font-size="15">4 cells</text>
+
+  <!-- Legend -->
+  <g transform="translate(50 870)" font-family="DejaVu Sans, sans-serif" font-size="12">
+    <line x1="0" y1="0" x2="24" y2="0" stroke="#42e879" stroke-width="4"/>
+    <text x="34" y="5" fill="#cdd4d7">planned path</text>
+    <rect x="145" y="-9" width="22" height="16" fill="none" stroke="#ffd64d" stroke-width="2" stroke-dasharray="5 3"/>
+    <text x="177" y="5" fill="#cdd4d7">queried footprint</text>
+    <rect x="325" y="-9" width="22" height="16" fill="#ec3cab"/>
+    <text x="357" y="5" fill="#cdd4d7">lethal obstacle</text>
+    <rect x="485" y="-9" width="22" height="16" fill="#22c7d6" opacity="0.6"/>
+    <text x="517" y="5" fill="#cdd4d7">inflated cost</text>
+  </g>
+</svg>

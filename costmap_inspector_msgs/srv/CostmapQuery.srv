@@ -1,0 +1,14 @@
+#request fields
+
+# If true, the query will use the robot's footprint for collision checking. If false,
+# it will use the footprint from the request.
+bool use_costmap_footprint
+geometry_msgs/Polygon footprint # Ignored when use_costmap_footprint is true
+geometry_msgs/PoseStamped footprint_pose # Origin of the footprint (or costmap footprint).
+
+bool persist_result
+# If true, layers detecting obstacles are timestamped and included in persisted_visible_sources
+# for the configured timeout period.. See CostmapQueryData.
+---
+#response fields
+bool successfully_added_to_queue

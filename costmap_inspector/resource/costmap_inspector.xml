@@ -1,0 +1,5 @@
+<library path="costmap_inspector_core">
+  <class type="costmap_inspector::LayerInspector" base_class_type="nav2_costmap_2d::Layer">
+    <description>Standalone plugin that queries the layered costmap for obstacles.</description>
+  </class>
+</library>

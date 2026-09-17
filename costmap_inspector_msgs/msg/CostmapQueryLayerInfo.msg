@@ -1,0 +1,2 @@
+string layer_name
+int64 num_lethal
