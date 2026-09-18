@@ -131,6 +131,7 @@ The `costmap_inspector_example` package starts a standalone local costmap with:
   robot over 60 seconds and publishes at 10 Hz with 0.25 degree resolution.
 - A query node that submits a random footprint query every 2 seconds and logs
   the asynchronous inspector result.
+- Debug layers are enabled (here shown laser: orange, static map: cyan) and lethal points are published (blue)
 
 The launch file configures and activates the standalone costmap automatically.
 The main interfaces are:
