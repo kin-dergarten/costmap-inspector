@@ -76,6 +76,10 @@ class TestableLayerInspector : public LayerInspector
   }
   double getParamDebugPublishPeriodicallyPeriodSeconds() const { return paramDebugPublishPeriodicallyPeriodSeconds; }
   double getParamLethalLayersTimeoutSeconds() const { return paramLethalLayersTimeoutSeconds; }
+  const std::string& getParamQueryResultTopic() const { return paramQueryResultTopic; }
+  const std::string& getParamLethalPointsTopic() const { return paramLethalPointsTopic; }
+  const std::string& getParamQueryService() const { return paramQueryService; }
+  const std::string& getParamBaseFrame() const { return paramBaseFrame; }
 };
 
 // Mock layer for testing
@@ -143,6 +147,16 @@ class LayerQueryTest : public ::testing::Test
     callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
     // Create inspector
+    node_->declare_parameter("test_inspector.enabled", true);
+    node_->declare_parameter("test_inspector.debug.publish_checked_footprint", true);
+    node_->declare_parameter("test_inspector.debug.publish_individual_layers", true);
+    node_->declare_parameter("test_inspector.debug.publish_individual_layers_periodically", true);
+    node_->declare_parameter("test_inspector.debug.publish_periodically_period_seconds", 2.5);
+    node_->declare_parameter("test_inspector.lethal_layers_timeout_seconds", 3.5);
+    node_->declare_parameter("test_inspector.query_result_topic", "test/query_result");
+    node_->declare_parameter("test_inspector.lethal_points_topic", "test/lethal_points");
+    node_->declare_parameter("test_inspector.query_service", "test/query");
+    node_->declare_parameter("test_inspector.base_frame", "test_base");
     inspector = std::make_shared<TestableLayerInspector>();
     inspector->initialize(layeredCostmap.get(), "test_inspector", tf_buffer_.get(), node_, callback_group_);
 
@@ -218,6 +232,19 @@ TEST_F(LayerQueryTest, QueryLayerNoLethalObstacles)
   EXPECT_EQ(resultData.layer_info[0].layer_name, "test_layer");
   EXPECT_EQ(resultData.layer_info[0].num_lethal, 0) << "No lethal obstacles in clear costmap";
   EXPECT_EQ(resultData.most_lethal_layer, "") << "No most lethal layer when no obstacles";
+}
+
+TEST_F(LayerQueryTest, LoadsConfiguredParameters)
+{
+  EXPECT_TRUE(inspector->getParamDebugPublishCheckedFootprint());
+  EXPECT_TRUE(inspector->getParamDebugPublishIndividualLayers());
+  EXPECT_TRUE(inspector->getParamDebugPublishIndividualLayersPeriodically());
+  EXPECT_DOUBLE_EQ(inspector->getParamDebugPublishPeriodicallyPeriodSeconds(), 2.5);
+  EXPECT_DOUBLE_EQ(inspector->getParamLethalLayersTimeoutSeconds(), 3.5);
+  EXPECT_EQ(inspector->getParamQueryResultTopic(), "test/query_result");
+  EXPECT_EQ(inspector->getParamLethalPointsTopic(), "test/lethal_points");
+  EXPECT_EQ(inspector->getParamQueryService(), "test/query");
+  EXPECT_EQ(inspector->getParamBaseFrame(), "test_base");
 }
 
 TEST_F(LayerQueryTest, QueryLayerSomeLethalObstacles)

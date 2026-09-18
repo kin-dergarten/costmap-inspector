@@ -1,0 +1,56 @@
+costmap:
+  costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      bond_heartbeat_period: 0.1
+      global_frame: odom
+      robot_base_frame: base_link
+      rolling_window: true
+      width: 5
+      height: 5
+      resolution: 0.05
+      always_send_full_costmap: true
+      footprint: "[[0.35, 0.25], [0.35, -0.25], [-0.35, -0.25], [-0.35, 0.25]]"
+      plugins: [static_layer, obstacle_layer, inflation_layer, inspector_layer]
+
+      static_layer:
+        plugin: nav2_costmap_2d::StaticLayer
+        enabled: true
+        map_subscribe_transient_local: true
+
+      obstacle_layer:
+        plugin: nav2_costmap_2d::ObstacleLayer
+        enabled: true
+        observation_sources: scan
+        scan:
+          topic: /scan
+          data_type: LaserScan
+          marking: true
+          clearing: true
+          obstacle_max_range: 3.0
+          raytrace_max_range: 2.4
+          observation_persistence: 0.0
+          inf_is_valid: true
+
+      inflation_layer:
+        plugin: nav2_costmap_2d::InflationLayer
+        cost_scaling_factor: 3.0
+        inflation_radius: 0.35
+
+      inspector_layer:
+        plugin: costmap_inspector::LayerInspector
+        enabled: true
+        query_result_topic: costmap/inspector_layer/query_result
+        lethal_points_topic: costmap/inspector_layer/lethal_points
+        query_service: costmap/inspector_layer/polygon_query
+        base_frame: base_link
+        debug.publish_checked_footprint: true
+        debug.publish_individual_layers: true
+        source_names.sources: [laser]
+        source_names.laser.name: Fake laser
+        source_names.laser.layers: [obstacle_layer]
+
+map_server:
+  ros__parameters:
+    yaml_filename: ""

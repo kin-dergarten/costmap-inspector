@@ -10,7 +10,7 @@ footprint against its individual layers, making the source of lethal cells
 visible.
 
 
-This package was build for ROS2 Humble.
+This package was built for ROS 2 Humble.
 
 ## Functionality
 
@@ -32,14 +32,18 @@ Add the plugin to the layered costmap's plugin list. The plugin does not add
 costs to the master costmap, so it can be placed after the layers it inspects.
 
 ```yaml
-local_costmap:
-  local_costmap:
+costmap:
+  costmap:
     ros__parameters:
       plugins: ["obstacle_layer", "inflation_layer", "inspector_layer"]
 
       inspector_layer:
         plugin: "costmap_inspector::LayerInspector"
         enabled: true
+        query_result_topic: costmap/inspector_layer/query_result
+        lethal_points_topic: costmap/inspector_layer/lethal_points
+        query_service: costmap/inspector_layer/polygon_query
+        base_frame: base_link
         lethal_layers_timeout_seconds: 0.5
         debug.publish_checked_footprint: false
         debug.publish_individual_layers: false
@@ -56,7 +60,7 @@ sources with `source_names.sources`, `source_names.<source>.name`, and
 The service is exposed at:
 
 ```text
-/local_costmap/inspector_layer/polygon_query
+/costmap/inspector_layer/polygon_query
 ```
 
 Service type: `costmap_inspector_msgs/srv/CostmapQuery`.
@@ -73,7 +77,7 @@ The service only acknowledges that the request was added to the processing
 queue. Results are published asynchronously on:
 
 ```text
-/local_costmap/inspector_layer/query_result
+/costmap/inspector_layer/query_result
 ```
 
 Message type: `costmap_inspector_msgs/msg/CostmapQueryData`. Results include
@@ -88,7 +92,8 @@ persisted layer or source names. The result status is one of:
 
 ## Published topics
 
-- `/local_costmap/inspector_layer/lethal_points` (`sensor_msgs/msg/PointCloud2`)
+- `/costmap/inspector_layer/lethal_points` (`sensor_msgs/msg/PointCloud2`)
+- `/costmap/costmap` (`nav_msgs/msg/OccupancyGrid`)
 - `<layer-name>/checked_footprint` (`geometry_msgs/msg/PolygonStamped`) when
   `debug.publish_checked_footprint` is enabled
 - `<layer-name>/debug/<costmap-layer>` (`nav_msgs/msg/OccupancyGrid`) when
@@ -99,9 +104,48 @@ persisted layer or source names. The result status is one of:
 Build the packages in a ROS 2 workspace with `colcon`:
 
 ```bash
-colcon build --packages-up-to costmap_inspector
-colcon test --packages-select costmap_inspector
+colcon build \
+  --packages-select costmap_inspector_msgs costmap_inspector \
+  --cmake-args -DBUILD_TESTING=ON
+source install/setup.bash
+colcon test \
+  --packages-select costmap_inspector \
+  --event-handlers console_direct+ \
+  --ctest-args -V
 ```
 
 The service and message definitions are provided by the companion
 `costmap_inspector_msgs` package.
+
+## Example
+
+![Costmap inspector example](docs/example.png)
+
+The `costmap_inspector_example` package starts a standalone local costmap with:
+
+- A 5 m x 5 m rolling costmap at 0.05 m resolution.
+- A centered 5 m x 5 m static map and static TF transforms from `map` to
+  `laser_frame`.
+- Static, obstacle, inflation, and inspector layers.
+- A fake laser scan with one moving obstacle. The obstacle moves around the
+  robot over 60 seconds and publishes at 10 Hz with 0.25 degree resolution.
+- A query node that submits a random footprint query every 2 seconds and logs
+  the asynchronous inspector result.
+
+The launch file configures and activates the standalone costmap automatically.
+The main interfaces are:
+
+- Query service: `/costmap/inspector_layer/polygon_query`
+- Query results: `/costmap/inspector_layer/query_result`
+- Lethal points: `/costmap/inspector_layer/lethal_points`
+- Published costmap: `/costmap/costmap`
+- Fake scan: `/scan`
+
+The fake scan can be disabled or its orbit period changed with launch
+arguments:
+
+```bash
+ros2 launch costmap_inspector_example costmap_inspector_demo.launch.py \
+  publish_fake_scan:=false \
+  fake_scan_motion_period:=120.0
+```

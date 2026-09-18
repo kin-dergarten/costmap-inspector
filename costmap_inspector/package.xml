@@ -21,8 +21,7 @@
   <test_depend>ament_cmake_gtest</test_depend>
 
   <export>
-    <costmap_2d plugin="${prefix}/costmap_inspector.xml"/>
+    <nav2_costmap_2d plugin="${prefix}/costmap_inspector.xml"/>
     <build_type>ament_cmake</build_type>
   </export>
 </package>
-

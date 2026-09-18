@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.8)
 find_package(ament_cmake_gtest REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
 
-ament_add_gtest(layer_query_test
+include(GoogleTest)
+
+ament_add_gtest_executable(layer_query_test
         layer_query_test.cpp
         test_main.cpp
 )
@@ -13,3 +15,5 @@ ament_target_dependencies(layer_query_test
         rclcpp_lifecycle
         nav2_costmap_2d
 )
+
+gtest_discover_tests(layer_query_test)

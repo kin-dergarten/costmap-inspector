@@ -26,6 +26,10 @@ constexpr const char* PARAM_DEBUG_PUBLISH_INDIVIDUAL_LAYERS = "debug.publish_ind
 constexpr const char* PARAM_DEBUG_PUBLISH_INDIVIDUAL_LAYERS_PERIODICALLY =
     "debug.publish_individual_layers_periodically";
 constexpr const char* PARAM_DEBUG_PUBLISH_PERIODICALLY_PERIOD_SECONDS = "debug.publish_periodically_period_seconds";
+constexpr const char* PARAM_QUERY_RESULT_TOPIC = "query_result_topic";
+constexpr const char* PARAM_LETHAL_POINTS_TOPIC = "lethal_points_topic";
+constexpr const char* PARAM_QUERY_SERVICE = "query_service";
+constexpr const char* PARAM_BASE_FRAME = "base_frame";
 
 const int MAX_REQUESTS_QUEUE_SIZE = 5;
 
@@ -90,6 +94,10 @@ class LayerInspector : public nav2_costmap_2d::Layer
   bool paramDebugPublishIndividualLayersPeriodically;
   double paramDebugPublishPeriodicallyPeriodSeconds;
   double paramLethalLayersTimeoutSeconds;
+  std::string paramQueryResultTopic;
+  std::string paramLethalPointsTopic;
+  std::string paramQueryService;
+  std::string paramBaseFrame;
 
   std::mutex requestDataMutex;
   std::queue<costmap_inspector_msgs::srv::CostmapQuery_Request::SharedPtr> pendingRequests;

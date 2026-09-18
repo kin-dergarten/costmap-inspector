@@ -32,18 +32,22 @@ void LayerInspector::onInitialize()
   if (toplevelNamespace.ends_with(nodeName)) {
     toplevelNamespace = toplevelNamespace.erase(toplevelNamespace.size() - nodeName.size());
   }
-  std::string topic = toplevelNamespace + topic::COSTMAP_QUERY_RESULT;
+  const auto resolveName = [&toplevelNamespace](const std::string& name) {
+    return name.starts_with('/') ? name : toplevelNamespace + name;
+  };
+
+  std::string topic = resolveName(paramQueryResultTopic);
   resultPublisher = node->create_publisher<CostmapQueryData>(topic, rclcpp::SystemDefaultsQoS());
   RCLCPP_INFO(logger_, "Created result publisher on topic: %s", topic.c_str());
 
-  topic = toplevelNamespace + topic::COSTMAP_LETHAL_POINTS;
+  topic = resolveName(paramLethalPointsTopic);
   lethalPointsPublisher = node->create_publisher<sensor_msgs::msg::PointCloud2>(topic, rclcpp::SystemDefaultsQoS());
   RCLCPP_INFO(logger_, "Created lethal points publisher on topic: %s", topic.c_str());
 
   createLayerDebugPublishers(node);
   polygonPublisher = node->create_publisher<geometry_msgs::msg::PolygonStamped>(name_ + "/checked_footprint",
                                                                                 rclcpp::SystemDefaultsQoS());
-  topic = toplevelNamespace + service::COSTMAP_INSPECTOR_QUERY;
+  topic = resolveName(paramQueryService);
   costmapQuerySrv = node->create_service<costmap_inspector_msgs::srv::CostmapQuery>(
       topic, [this](const std::shared_ptr<costmap_inspector_msgs::srv::CostmapQuery::Request> request,
                     std::shared_ptr<costmap_inspector_msgs::srv::CostmapQuery::Response> response) {
@@ -75,6 +79,14 @@ void LayerInspector::loadParameters(rclcpp_lifecycle::LifecycleNode::SharedPtr& 
                       paramDebugPublishPeriodicallyPeriodSeconds);
   declareParameter(PARAM_LETHAL_LAYERS_TIMEOUT_SECONDS, rclcpp::ParameterValue(0.5));
   node->get_parameter(name_ + "." + PARAM_LETHAL_LAYERS_TIMEOUT_SECONDS, paramLethalLayersTimeoutSeconds);
+  declareParameter(PARAM_QUERY_RESULT_TOPIC, rclcpp::ParameterValue(topic::DEFAULT_QUERY_RESULT_TOPIC));
+  node->get_parameter(name_ + "." + PARAM_QUERY_RESULT_TOPIC, paramQueryResultTopic);
+  declareParameter(PARAM_LETHAL_POINTS_TOPIC, rclcpp::ParameterValue(topic::DEFAULT_LETHAL_POINTS_TOPIC));
+  node->get_parameter(name_ + "." + PARAM_LETHAL_POINTS_TOPIC, paramLethalPointsTopic);
+  declareParameter(PARAM_QUERY_SERVICE, rclcpp::ParameterValue(service::DEFAULT_QUERY_SERVICE));
+  node->get_parameter(name_ + "." + PARAM_QUERY_SERVICE, paramQueryService);
+  declareParameter(PARAM_BASE_FRAME, rclcpp::ParameterValue(frame::DEFAULT_BASE_FRAME));
+  node->get_parameter(name_ + "." + PARAM_BASE_FRAME, paramBaseFrame);
 
   // load source map: maps layer names to their human-readable source names
   const std::string prefix = "source_names";
@@ -398,10 +410,10 @@ bool LayerInspector::handleRequestResults(CostmapQueryData& resultData, nav2_cos
   try {
     tf2::doTransform(
         meanPoint, meanPointBaseLink,
-        tf_->lookupTransform(frame::BASE_LINK, lethalPointsCloud.header.frame_id, tf2::TimePointZero));
+        tf_->lookupTransform(paramBaseFrame, lethalPointsCloud.header.frame_id, tf2::TimePointZero));
   } catch (const tf2::TransformException& ex) {
     RCLCPP_ERROR(logger_, "Failed to transform mean obstacle point from '%s' to '%s': %s",
-                 lethalPointsCloud.header.frame_id.c_str(), frame::BASE_LINK, ex.what());
+                 lethalPointsCloud.header.frame_id.c_str(), paramBaseFrame.c_str(), ex.what());
     if (resultPublisher) {
       resultPublisher->publish(resultData);
     }
